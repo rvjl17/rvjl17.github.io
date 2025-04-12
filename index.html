@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recibo de Pago</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { background-color: #f9f9f9; }
+        .receipt { display: none; }
+        .form-label { font-weight: 600; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="bg-white p-4 p-md-5 rounded shadow mx-auto" style="max-width: 700px;">
+            <div id="receiptContent">
+                <div class="row mb-4 align-items-start">
+                    <div class="col-6">
+                        <img src="./logo.jpg" alt="Logo ejemplo" class="img-fluid" style="max-width: 100px;" />
+                    </div>
+                    <div class="col-6 text-end">
+                        <p><strong>Recibo No.:</strong> <span id="receiptNumber"></span></p>
+                        <p><strong>Fecha:</strong> <span id="currentDate"></span></p>
+                    </div>
+                </div>
+
+                <form id="receiptForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Recibí de:</label>
+                        <input type="text" id="nombre" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">La cantidad de $:</label>
+                        <input type="number" id="cantidad" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="inicio" class="form-label">Inicio (mes):</label>
+                            <input type="month" id="inicio" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="fin" class="form-label">Fin (mes):</label>
+                            <input type="month" id="fin" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="numeroCasa" class="form-label">Número de casa:</label>
+                        <input type="number" id="numeroCasa" class="form-control" required />
+                    </div>
+                    <button type="button" id="generateBtn" class="btn btn-success w-100 no-print">
+                        Descargar comprobante
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="pdfContent" class="receipt"></div>
+
+    <script>
+        function numeroATexto(numero) {
+            const unidades = ['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
+            const especiales = ['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'];
+            const decenas = ['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+            const centenas = ['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+
+            if (numero === 0) return 'cero';
+            if (numero === 100) return 'cien';
+
+            let texto = '';
+            let num = numero;
+
+            if (num > 999999) return 'Cantidad demasiado grande';
+
+            const miles = Math.floor(num / 1000);
+            const resto = num % 1000;
+
+            if (miles > 0) {
+                texto += (miles === 1 ? 'mil' : `${convertirCentenas(miles)} mil`);
+            }
+
+            if (resto > 0) {
+                texto += (texto ? ' ' : '') + convertirCentenas(resto);
+            }
+
+            return texto.trim();
+
+            function convertirCentenas(n) {
+                let c = Math.floor(n / 100);
+                let d = Math.floor((n % 100) / 10);
+                let u = n % 10;
+                let textoCentena = '';
+
+                if (n === 0) return '';
+                if (n === 100) return 'cien';
+
+                if (c > 0) textoCentena += centenas[c] + ' ';
+
+                if (d === 1) {
+                    textoCentena += especiales[u];
+                } else if (d > 1) {
+                    textoCentena += decenas[d];
+                    if (u > 0) textoCentena += ' y ' + unidades[u];
+                } else if (u > 0) {
+                    textoCentena += unidades[u];
+                }
+
+                return textoCentena.trim();
+            }
+        }
+
+        function obtenerMesTexto(mesInput) {
+            const fecha = new Date(mesInput + "-01T00:00:00");
+            return fecha.toLocaleDateString("es-MX", { month: "long", year: "numeric" });
+        }
+
+        function getNextReceiptNumber() {
+            let current = localStorage.getItem("receiptNumber");
+            current = current ? parseInt(current) + 1 : 1;
+            localStorage.setItem("receiptNumber", current);
+            return current;
+        }
+
+        const today = new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" });
+        document.getElementById("currentDate").textContent = today;
+
+        const numeroRecibo = getNextReceiptNumber();
+        document.getElementById("receiptNumber").textContent = numeroRecibo;
+
+        document.getElementById("generateBtn").addEventListener("click", () => {
+            const nombre = document.getElementById("nombre").value.trim();
+            const cantidad = document.getElementById("cantidad").value.trim();
+            const inicio = document.getElementById("inicio").value.trim();
+            const fin = document.getElementById("fin").value.trim();
+            const numeroCasa = document.getElementById("numeroCasa").value.trim();
+
+            let camposFaltantes = [];
+            if (!nombre) camposFaltantes.push('Nombre');
+            if (!cantidad) camposFaltantes.push('Cantidad');
+            if (!inicio) camposFaltantes.push('Inicio');
+            if (!fin) camposFaltantes.push('Fin');
+            if (!numeroCasa) camposFaltantes.push('Número de casa');
+
+            if (camposFaltantes.length > 0) {
+                alert("Faltan los siguientes campos:\n\n" + camposFaltantes.join("\n"));
+                return;
+            }
+
+            const cantidadTexto = numeroATexto(parseInt(cantidad));
+            const inicioTexto = obtenerMesTexto(inicio);
+            const finTexto = obtenerMesTexto(fin);
+
+            const contenido = `
+                <div style="font-family: Arial; padding: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <img src="./logo.jpg" alt="Logo" style="max-width: 100px;" />
+                        <div style="text-align: right;">
+                            <p><strong>Recibo No.:</strong> ${numeroRecibo}</p>
+                            <p><strong>Fecha:</strong> ${today}</p>
+                        </div>
+                    </div>
+                    <p style="margin-top: 40px;">Recibí de: <strong>${nombre}</strong></p>
+                    <p>La cantidad de $<strong>${cantidad}</strong> (Son <strong>${cantidadTexto}</strong> pesos 00/100 m.n)</p>
+                    <p>Por concepto de pago de la cuota para mantenimiento del mes de <strong>${inicioTexto}</strong> al <strong>${finTexto}</strong>, de la asociación de colonos del Circuito Hacienda "Santa Bárbara" #<strong>${numeroCasa}</strong>.</p>
+                    <p style="margin-top: 20px;"><em>Nota: El pago de este recibo no lo exime de adeudos anteriores.</em></p>
+                    <div style="text-align: center; margin-top: 60px;">
+                        <p><strong>Recibe: César Cano Carrasco</strong></p>
+                        <img src="./firma.png" alt="Firma" style="max-width: 200px; margin-top: 10px;" />
+                    </div>
+                </div>
+            `;
+
+            const pdfElement = document.getElementById("pdfContent");
+            pdfElement.innerHTML = contenido;
+            pdfElement.style.display = "block";
+
+            const nombreArchivo = `Comprobante-${nombre.replace(/\s+/g, "")}-${new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" }).replace(/\s+/g, "")}.pdf`;
+
+            html2pdf().from(pdfElement).save(nombreArchivo).then(() => {
+                pdfElement.style.display = "none";
+                location.reload();
+            });
+        });
+    </script>
+</body>
+</html>
