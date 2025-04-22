@@ -1,216 +1,239 @@
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Recibo de Pago</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recibo de Pago - Fraccionamiento Haciendas</title>
+  <link rel="stylesheet" href="style.css" />
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #recibo, #recibo * {
+    visibility: visible;
+  }
+  #recibo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: 2px solid black;
+    padding: 20px;
+    font-family: 'Georgia', serif;
+    background-color: white;
+    box-shadow: none;
+  }
+}
+.recibo {
+  border: 2px solid #000;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+}
+.recibo h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+</style>
 
-    <style>
-        body {
-            background-color: #f9f9f9;
-        }
 
-        .receipt {
-            display: none;
-        }
+<style>
+@media print {
+  @page {
+    size: landscape;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #recibo, #recibo * {
+    visibility: visible;
+  }
+  #recibo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+    border: 2px solid black;
+    font-family: 'Georgia', serif;
+    background-color: white;
+  }
+}
+</style>
 
-        .form-label {
-            font-weight: 600;
-        }
 
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-        }
-    </style>
+<style>
+@media print {
+  @page {
+    size: landscape;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #recibo, #recibo * {
+    visibility: visible;
+  }
+  #recibo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 40px;
+    border: 3px double #000;
+    background-color: #fff;
+    font-family: 'Georgia', serif;
+  }
+}
+.recibo {
+  border: 3px double #000;
+  padding: 30px;
+  margin-top: 20px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+}
+.recibo h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+</style>
+
+
+<style>
+@media print {
+  @page {
+    size: landscape;
+    margin: 20mm;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #recibo, #recibo * {
+    visibility: visible;
+  }
+  #recibo {
+    position: absolute;
+    left: 10%;
+    top: 5%;
+    width: 80%;
+    padding: 20px;
+    border: 2px solid #000;
+    font-family: 'Georgia', serif;
+    background-color: white;
+    font-size: 14px;
+    box-shadow: none;
+  }
+}
+.recibo {
+  border: 2px solid #000;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  background-color: #fefefe;
+  font-family: 'Georgia', serif;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.15);
+}
+.recibo h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+</style>
+
 </head>
-
 <body>
-    <div class="container my-5">
-        <div class="bg-white p-4 p-md-5 rounded shadow mx-auto" style="max-width: 700px;">
-            <div id="receiptContent">
-                <div class="row mb-4 align-items-start">
-                    <div class="col-6">
-                        <img src="./logo.jpg" alt="Logo ejemplo" class="img-fluid" style="max-width: 100px;" />
-                    </div>
-                    <div class="col-6 text-end">
-                        <p><strong>Recibo No.:</strong> <span id="receiptNumber"></span></p>
-                        <p><strong>Fecha:</strong> <span id="currentDate"></span></p>
-                    </div>
-                </div>
+  <div class="logo-container">
+    <img src="logo_haciendas_blanco_fondo.png" alt="Logo Fraccionamiento Haciendas" class="logo" />
+  </div>
 
-                <form id="receiptForm" class="needs-validation" novalidate>
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label">Recibí de:</label>
-                        <input type="text" id="nombre" class="form-control" required />
-                    </div>
+  <h1>Recibo de Pago</h1>
 
-                    <div class="mb-3">
-                        <label for="cantidad" class="form-label">La cantidad de $:</label>
-                        <input type="number" id="cantidad" class="form-control" required />
-                    </div>
+  <label>Contraseña de acceso:
+    <input type="password" id="password" placeholder="Ingrese la contraseña" />
+  </label>
+  <button onclick="verificarPassword()">Entrar</button>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="inicio" class="form-label">Inicio (mes):</label>
-                            <input type="month" id="inicio" class="form-control" required />
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="fin" class="form-label">Fin (mes):</label>
-                            <input type="month" id="fin" class="form-control" required />
-                        </div>
-                    </div>
+  <div id="formulario" class="hidden">
+    <label>Nombre de quien paga:
+      <input type="text" id="nombre" />
+    </label>
+    <label>Número de casa:
+      <input type="text" id="casa" />
+    </label>
+    <label>Cantidad en pesos mexicanos:
+      <input type="number" id="cantidad" oninput="actualizarCantidadTexto()" />
+    </label>
+    <label>Cantidad en texto:
+      <input type="text" id="cantidadTexto" readonly />
+    </label>
+    <label>Mes de inicio del pago:
+      <select id="mesInicio" onchange="actualizarMesSiguiente()">
+        <option value="">Seleccione un mes</option>
+        <option value="Enero">Enero</option>
+        <option value="Febrero">Febrero</option>
+        <option value="Marzo">Marzo</option>
+        <option value="Abril">Abril</option>
+        <option value="Mayo">Mayo</option>
+        <option value="Junio">Junio</option>
+        <option value="Julio">Julio</option>
+        <option value="Agosto">Agosto</option>
+        <option value="Septiembre">Septiembre</option>
+        <option value="Octubre">Octubre</option>
+        <option value="Noviembre">Noviembre</option>
+        <option value="Diciembre">Diciembre</option>
+      </select>
+    </label>
+    <label>Hasta:
+      <input type="text" id="mesSiguiente" readonly />
+    </label>
+    <button onclick="generarRecibo()">Generar Recibo</button>
 
-                    <div class="mb-4">
-                        <label for="numeroCasa" class="form-label">Número de casa:</label>
-                        <input type="number" id="numeroCasa" class="form-control" required />
-                    </div>
-
-                    <button type="button" id="generateBtn" class="btn btn-success w-100 no-print">
-                        Descargar comprobante
-                    </button>
-                </form>
-            </div>
-        </div>
+    <div id="recibo" class="recibo hidden">
+      <img src="logo_haciendas_blanco_fondo.png" alt="Logo" class="logo" />
     </div>
+  </div>
 
-    <div id="pdfContent" class="receipt"></div>
+  <script src="script.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // Número a texto en español
-        function numeroATexto(numero) {
-            const unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
-            const decenas = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
-            const centenas = ["", "cien", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"];
-
-            if (numero === 0) return "cero";
-            if (numero > 999999) return "Cantidad demasiado grande";
-
-            const convertir = (num) => {
-                if (num < 10) return unidades[num];
-                if (num < 16) return ["diez", "once", "doce", "trece", "catorce", "quince"][num - 10];
-                if (num < 20) return "dieci" + unidades[num - 10];
-                if (num < 30) return num === 20 ? "veinte" : "veinti" + unidades[num - 20];
-
-                let texto = decenas[Math.floor(num / 10)];
-                if (num % 10 > 0) texto += " y " + unidades[num % 10];
-                return texto;
-            };
-
-            const convertirCentenas = (num) => {
-                if (num === 100) return "cien";
-                const centena = Math.floor(num / 100);
-                const resto = num % 100;
-                return (centenas[centena] + (resto ? " " + convertir(resto) : "")).trim();
-            };
-
-            const miles = Math.floor(numero / 1000);
-            const resto = numero % 1000;
-            let resultado = "";
-
-            if (miles > 0) {
-                resultado += (miles === 1 ? "mil" : convertirCentenas(miles) + " mil");
-            }
-
-            if (resto > 0) {
-                if (resultado !== "") resultado += " ";
-                resultado += convertirCentenas(resto);
-            }
-
-            return resultado.trim();
-        }
-
-        // Recibo correlativo
-        function getNextReceiptNumber() {
-            let current = localStorage.getItem("receiptNumber");
-            if (!current) current = 1;
-            else current = parseInt(current) + 1;
-            localStorage.setItem("receiptNumber", current);
-            return current;
-        }
-
-        // Fecha de hoy
-        const today = new Date().toLocaleDateString("es-MX", {
-            year: "numeric",
-            month: "long",
-            day: "numeric"
+      async function descargarPDF() {
+        const {{ jsPDF }} = window.jspdf;
+        const doc = new jsPDF({ orientation: "landscape" });
+        const recibo = document.getElementById("recibo");
+        await html2canvas(recibo).then(canvas => {
+          const imgData = canvas.toDataURL("image/png");
+          const imgProps = doc.getImageProperties(imgData);
+          const pdfWidth = doc.internal.pageSize.getWidth();
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+          doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          doc.save("recibo.pdf");
         });
-        document.getElementById("currentDate").textContent = today;
-        document.getElementById("receiptNumber").textContent = getNextReceiptNumber();
-
-        // Validación de fecha fin
-        document.getElementById("inicio").addEventListener("change", function () {
-            document.getElementById("fin").min = this.value;
-        });
-
-        document.getElementById("generateBtn").addEventListener("click", () => {
-            const nombre = document.getElementById("nombre").value;
-            const cantidad = document.getElementById("cantidad").value;
-            const inicio = document.getElementById("inicio").value;
-            const fin = document.getElementById("fin").value;
-            const numeroCasa = document.getElementById("numeroCasa").value;
-
-            const camposFaltantes = [];
-            if (!nombre) camposFaltantes.push("Nombre");
-            if (!cantidad) camposFaltantes.push("Cantidad");
-            if (!inicio) camposFaltantes.push("Inicio");
-            if (!fin) camposFaltantes.push("Fin");
-            if (!numeroCasa) camposFaltantes.push("Número de casa");
-
-            if (camposFaltantes.length > 0) {
-                alert("Por favor completa los siguientes campos:\n" + camposFaltantes.join(", "));
-                return;
-            }
-
-            if (new Date(fin + "-01") < new Date(inicio + "-01")) {
-                alert("La fecha de fin no puede ser anterior a la fecha de inicio.");
-                return;
-            }
-
-            const cantidadTexto = numeroATexto(parseInt(cantidad));
-            const inicioTexto = new Date(inicio + "-01").toLocaleDateString("es-MX", { month: "long", year: "numeric" });
-            const finTexto = new Date(fin + "-01").toLocaleDateString("es-MX", { month: "long", year: "numeric" });
-            const contenido = `
-  <div style="font-family: Arial; padding: 30px;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-      <img src="./logo.jpg" alt="Logo" style="max-width: 100px;" />
-      <div style="text-align: right;">
-        <p><strong>Recibo No.:</strong> ${getNextReceiptNumber()}</p>
-        <p><strong>Fecha:</strong> ${today}</p>
-      </div>
-    </div>
-
-    <p style="margin-top: 40px;">Recibí de: <strong>${nombre}</strong></p>
-    <p>La cantidad de $<strong>${cantidad}</strong> (Son <strong>${cantidadTexto}</strong> pesos 00/100 m.n)</p>
-    <p>Por concepto de pago de la cuota para mantenimiento del mes de <strong>${inicioTexto}</strong> al <strong>${finTexto}</strong>, de la asociación de colonos del Circuito Hacienda "Santa Bárbara" #<strong>${numeroCasa}</strong>.</p>
-
-    <p style="margin-top: 20px;"><em>Nota: El pago de este recibo no lo exime de adeudos anteriores.</em></p>
-
-    <div style="text-align: center; margin-top: 60px;">
-      <p><strong>Recibe: César Cano Carrasco</strong></p>
-      <img src="./firma.png" alt="Firma" style="max-width: 200px; margin-top: 10px;" />
-    </div>
-  </div>`;
-
-            const pdfElement = document.getElementById("pdfContent");
-            pdfElement.innerHTML = contenido;
-            pdfElement.style.display = "block";
-
-            const nombreArchivo = `Comprobante-${nombre.replace(/\s+/g, "")}-${new Date().toLocaleDateString("es-MX", {
-                day: "2-digit", month: "long", year: "numeric"
-            }).replace(/\s+/g, "")}.pdf`;
-
-            html2pdf().from(pdfElement).save(nombreArchivo).then(() => {
-                pdfElement.style.display = "none";
-                location.reload();  // Refresca la página
-            });
-        });
+      }
     </script>
-</body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  async function descargarPDF() {
+    const {{ jsPDF }} = window.jspdf;
+    const doc = new jsPDF({ orientation: "landscape" });
+    const recibo = document.getElementById("recibo");
+    const canvas = await html2canvas(recibo);
+    const imgData = canvas.toDataURL("image/png");
+    const imgProps = doc.getImageProperties(imgData);
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    doc.save("recibo.pdf");
+  }
+</script>
+
+</body>
 </html>
