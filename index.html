@@ -4,160 +4,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recibo de Pago - Fraccionamiento Haciendas</title>
-  <link rel="stylesheet" href="style.css" />
-
-<style>
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  #recibo, #recibo * {
-    visibility: visible;
-  }
-  #recibo {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border: 2px solid black;
-    padding: 20px;
-    font-family: 'Georgia', serif;
-    background-color: white;
-    box-shadow: none;
-  }
-}
-.recibo {
-  border: 2px solid #000;
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-}
-.recibo h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-</style>
-
-
-<style>
-@media print {
-  @page {
-    size: landscape;
-  }
-  body * {
-    visibility: hidden;
-  }
-  #recibo, #recibo * {
-    visibility: visible;
-  }
-  #recibo {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 20px;
-    border: 2px solid black;
-    font-family: 'Georgia', serif;
-    background-color: white;
-  }
-}
-</style>
-
-
-<style>
-@media print {
-  @page {
-    size: landscape;
-  }
-  body * {
-    visibility: hidden;
-  }
-  #recibo, #recibo * {
-    visibility: visible;
-  }
-  #recibo {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 40px;
-    border: 3px double #000;
-    background-color: #fff;
-    font-family: 'Georgia', serif;
-  }
-}
-.recibo {
-  border: 3px double #000;
-  padding: 30px;
-  margin-top: 20px;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
-}
-.recibo h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-</style>
-
-
-<style>
-@media print {
-  @page {
-    size: landscape;
-    margin: 20mm;
-  }
-  body * {
-    visibility: hidden;
-  }
-  #recibo, #recibo * {
-    visibility: visible;
-  }
-  #recibo {
-    position: absolute;
-    left: 10%;
-    top: 5%;
-    width: 80%;
-    padding: 20px;
-    border: 2px solid #000;
-    font-family: 'Georgia', serif;
-    background-color: white;
-    font-size: 14px;
-    box-shadow: none;
-  }
-}
-.recibo {
-  border: 2px solid #000;
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 8px;
-  background-color: #fefefe;
-  font-family: 'Georgia', serif;
-  box-shadow: 2px 2px 10px rgba(0,0,0,0.15);
-}
-.recibo h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-</style>
-
+  <title>Recibo de Pago - Hacienda Santa Bárbara</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <div class="logo-container">
-    <img src="logo_haciendas_blanco_fondo.png" alt="Logo Fraccionamiento Haciendas" class="logo" />
+  <div id="login">
+    <h1>Recibo de Pago</h1>
+    <label>Contraseña de acceso:
+      <input type="password" id="password" placeholder="Ingrese la contraseña" />
+    </label>
+    <button onclick="verificarPassword()">Entrar</button>
   </div>
 
-  <h1>Recibo de Pago</h1>
-
-  <label>Contraseña de acceso:
-    <input type="password" id="password" placeholder="Ingrese la contraseña" />
-  </label>
-  <button onclick="verificarPassword()">Entrar</button>
-
   <div id="formulario" class="hidden">
+    <img src="logo_haciendas_blanco_fondo.png" class="logo" />
     <label>Nombre de quien paga:
       <input type="text" id="nombre" />
     </label>
@@ -165,75 +26,25 @@
       <input type="text" id="casa" />
     </label>
     <label>Cantidad en pesos mexicanos:
-      <input type="number" id="cantidad" oninput="actualizarCantidadTexto()" />
+      <input type="number" id="cantidad" oninput="actualizarTextoCantidad()" />
+      <div id="textoCantidad"></div>
     </label>
-    <label>Cantidad en texto:
-      <input type="text" id="cantidadTexto" readonly />
-    </label>
-    <label>Mes de inicio del pago:
-      <select id="mesInicio" onchange="actualizarMesSiguiente()">
-        <option value="">Seleccione un mes</option>
-        <option value="Enero">Enero</option>
-        <option value="Febrero">Febrero</option>
-        <option value="Marzo">Marzo</option>
-        <option value="Abril">Abril</option>
-        <option value="Mayo">Mayo</option>
-        <option value="Junio">Junio</option>
-        <option value="Julio">Julio</option>
-        <option value="Agosto">Agosto</option>
-        <option value="Septiembre">Septiembre</option>
-        <option value="Octubre">Octubre</option>
-        <option value="Noviembre">Noviembre</option>
-        <option value="Diciembre">Diciembre</option>
+    <label>Mes de inicio:
+      <select id="mesInicio" onchange="actualizarMesFin()">
+        <option>Enero</option><option>Febrero</option><option>Marzo</option>
+        <option>Abril</option><option>Mayo</option><option>Junio</option>
+        <option>Julio</option><option>Agosto</option><option>Septiembre</option>
+        <option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
       </select>
-    </label>
-    <label>Hasta:
-      <input type="text" id="mesSiguiente" readonly />
+      <div id="mesFin">Hasta Febrero</div>
     </label>
     <button onclick="generarRecibo()">Generar Recibo</button>
 
-    <div id="recibo" class="recibo hidden">
-      <img src="logo_haciendas_blanco_fondo.png" alt="Logo" class="logo" />
-    </div>
+    <div id="recibo" class="recibo hidden"></div>
+    <button id="btnPDF" onclick="descargarPDF()" class="hidden">Descargar PDF</button>
+    <button id="btnExcel" onclick="exportarExcel()" class="hidden">Exportar a Excel</button>
+
+    <div id="historial" class="historial"></div>
   </div>
-
-  <script src="script.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-      async function descargarPDF() {
-        const {{ jsPDF }} = window.jspdf;
-        const doc = new jsPDF({ orientation: "landscape" });
-        const recibo = document.getElementById("recibo");
-        await html2canvas(recibo).then(canvas => {
-          const imgData = canvas.toDataURL("image/png");
-          const imgProps = doc.getImageProperties(imgData);
-          const pdfWidth = doc.internal.pageSize.getWidth();
-          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-          doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          doc.save("recibo.pdf");
-        });
-      }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-  async function descargarPDF() {
-    const {{ jsPDF }} = window.jspdf;
-    const doc = new jsPDF({ orientation: "landscape" });
-    const recibo = document.getElementById("recibo");
-    const canvas = await html2canvas(recibo);
-    const imgData = canvas.toDataURL("image/png");
-    const imgProps = doc.getImageProperties(imgData);
-    const pdfWidth = doc.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    doc.save("recibo.pdf");
-  }
-</script>
-
 </body>
 </html>
